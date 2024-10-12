@@ -19,6 +19,7 @@ honorButton.onclick = function() {
 output.innerHTML = slider.value + " Syllables";
 
 let nameLength = slider.value;
+let previousName;
 
 slider.oninput = function() {
     output.innerHTML = this.value + " Syllables";
@@ -26,16 +27,18 @@ slider.oninput = function() {
 };
 
 nameBar.onclick = function(){
-    let previousName = nameBar.innerHTML;
+    previousName = nameBar.innerHTML;
    
     navigator.clipboard.writeText(nameBar.innerHTML);
     nameBar.classList.replace("is-ghost","is-success");
     nameBar.innerHTML = "Copied!";
-
-    nameBar.onmouseleave = function(){
-        nameBar.innerHTML = previousName;
-        nameBar.classList.replace("is-success","is-ghost");
+};
+nameBar.onmouseleave = function(){
+    if (nameBar.innerHTML != "Copied!"){
+        return;
     }
+    nameBar.innerHTML = previousName;
+    nameBar.classList.replace("is-success","is-ghost");
 };
 
 function fillName(){
