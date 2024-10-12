@@ -30,7 +30,7 @@ nameBar.onclick = function(){
     previousName = nameBar.innerHTML;
    
     navigator.clipboard.writeText(nameBar.innerHTML);
-    nameBar.classList.replace("is-ghost","is-success");
+    nameBar.classList.replace("is-text","is-success");
     nameBar.innerHTML = "Copied!";
 };
 nameBar.onmouseleave = function(){
@@ -38,7 +38,7 @@ nameBar.onmouseleave = function(){
         return;
     }
     nameBar.innerHTML = previousName;
-    nameBar.classList.replace("is-success","is-ghost");
+    nameBar.classList.replace("is-success","is-text");
 };
 
 function fillName(){
