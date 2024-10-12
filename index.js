@@ -2,15 +2,13 @@ fetch('gif-list.json')
     .then(response => response.json())
     .then(data => {
         loadRandomGif(data);
-        console.log(data);
-        // You can now use the parsed JSON data
     }).catch(error => console.error('Error fetching JSON:', error));
 
 function loadRandomGif(data){
     let img = document.getElementById("random-gif");
     let chosenImage = data[Math.floor(Math.random()*data.length)];
 
-    console.log("Chose gif:" + chosenImage);
+    //console.log("Chose gif:" + chosenImage);
 
     img.src = chosenImage.link;
     img.alt = chosenImage['alt-text'];
