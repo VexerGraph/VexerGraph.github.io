@@ -2,6 +2,7 @@ let slider = document.getElementById("name-length");
 let output = document.getElementById("display-length");
 let honorButton = document.getElementById("honorific");
 let addTitle = true;
+let nameBar = document.getElementById("name");
 
 honorButton.onclick = function() {
     if (addTitle){
@@ -22,6 +23,19 @@ let nameLength = slider.value;
 slider.oninput = function() {
     output.innerHTML = this.value + " Syllables";
     nameLength = slider.value;
+};
+
+nameBar.onclick = function(){
+    let previousName = nameBar.innerHTML;
+   
+    navigator.clipboard.writeText(nameBar.innerHTML);
+    nameBar.classList.replace("is-ghost","is-success");
+    nameBar.innerHTML = "Copied!";
+
+    nameBar.onmouseleave = function(){
+        nameBar.innerHTML = previousName;
+        nameBar.classList.replace("is-success","is-ghost");
+    }
 };
 
 function fillName(){
