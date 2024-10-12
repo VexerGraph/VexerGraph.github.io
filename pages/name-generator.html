@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>A Silly Name Generator</title>
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css"
+    >
+    <link
+        rel="stylesheet"
+        href="../index.css"
+    >
+    <link rel="icon" href=
+    "https://static.wikia.nocookie.net/parody/images/3/3b/Kinger.jpg" 
+              type="image/x-icon">
+    <script src="./scripts/name-generator.js" defer></script>
+  </head>
+  <body>
+    <h1 class="title is-flex is-justify-content-center mt-5">Name Generator</h1>
+    <div class="columns is-centered">
+      <div class="column is-half">
+        <div class="is-flex is-justify-content-center">
+          <p>Uses a list of vowels and consonants to generate a nonsensical name.</p>
+        </div>
+        <div class = "is-flex is-justify-content-center mt-5">
+            <button class = "button" onclick = "fillName()">Generate a Name</button>
+            <p class = "button ml-1 is-ghost" id = "name">Name will fill here.</p>
+        </div>
+        <div class = "box small-box mt-3 is-centered">
+            <div class="is-flex is-justify-content-center">
+                Some Settings:
+            </div>
+            <div class="is-centered">
+                    <p class="mb-2">Add Honorific:</p>
+                    <div>
+                        <button class="button is-success" id = "honorific">Yes</button>
+                      </div>
+                      <p class="mb-2">Max Name Length:</p>
+                      <div class="slidecontainer">
+                        <input type="range" min="1" max="15" value="3" class="slider" id="name-length">
+                        <p id="display-length">help</p>
+                    </div>    
+            </div>
+        </div>
+    </div>
+      </div>
+    </div>
+    <div class="container is-flex is-justify-content-center my-4">
+      <h2 class="subtitle">Pages:</h1>
+    </div>
+    <div class="columns is-centered">
+      <div class="column">
+        <div class="is-flex is-justify-content-center">
+          <a href="battle-sim.html" class="button mr-1 is-warning is-dark">Battle Simulator</a>
+          <a href="../index.html" class="button is-danger is-dark">Back to Home</a>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
