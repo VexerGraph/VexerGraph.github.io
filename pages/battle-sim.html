@@ -29,16 +29,30 @@
           <h2>Battle Settings ⚖️</h2>
           <p>Configure the rules of the game.</p>
           <div class="buttons has-addons">
-            <button class="button is-success is-selected">1v1 Battle</button>
-            <button class="button">Team Battle</button>
-            <button class="button">Free-For-All</button>
+            <button class="button is-success is-selected" id="duel">Free-For-All</button>
+            <button class="button" id="team">Team Battle</button>
           </div>
-          <p>Nothing actually works here yet, still getting it set up.</p>
+          <div id="battle-configuration" class="container">
+            <h3>Configuration</h3>
+              <label for="name" id="name-label">Enter Contestants:</label>
+              <input class="input" id ="fighter" name="fighter" placeholder="Fighter 1"> 
+              <div id="fighter-list">
+
+              </div>
+              <button class="button is-small" id="clear-fighters" style="display: none;">Clear Fighters</button>
+          </div>
+          <button class="button mt-5" id="start-battle">Commence Battle 💣</button>
         </div>
       </div>
       <div class="box">
         <div class = "content is-centered">
           <h2>War Log ⚔️</h2>
+          <div id="war-log" class="mb-3"></div>
+
+          <div id="statuses"></div>
+          
+          <button class="button is-small" id="copy-log" style="display: none;">💾 Save Log to MD file</button>
+          <button class="button is-small" id="clear-log" style="display: none;">❌ Clear Log</button>
         </div>
       </div>
     </div>

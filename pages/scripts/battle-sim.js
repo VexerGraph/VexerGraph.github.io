@@ -1,3 +1,125 @@
+import { fullTitle, shuffle } from "./modules.js";
+
+const duelButton = document.getElementById("duel"),
+teamButton = document.getElementById("team"),
+startButton = document.getElementById("start-battle"),
+warLog = document.getElementById("war-log"),
+clearLog = document.getElementById("clear-log"),
+saveLog = document.getElementById("copy-log"),
+fighterField = document.getElementById("fighter"),
+fighterList = document.getElementById("fighter-list"),
+clearFighters = document.getElementById("clear-fighters");
+
+//ok so I might remove duel gamemode all togehter and make ffa the default.
+
+let fighterNames = ["Default Billy", "Default Mandy"];
+let fIndex = 0;
+
+
+
+fighterField.addEventListener('keypress', (e) => {
+	if (e.key === 'Enter'){
+		if (fighterField.value == ''){
+			fighterNames[fIndex] = fullTitle(true);
+		}
+		else{
+			fighterNames[fIndex] = fighterField.value;
+		};
+		
+		fighterField.value = '';
+		fIndex += 1;
+		fighterField.placeholder = `Fighter ${fIndex + 1}`;
+
+		if (fIndex == 1){
+			fighterList.append(document.createElement("h6").textContent = "Current Fighters:");
+			fighterList.append(document.createElement("br"));
+			fighterList.append(document.createElement("p").textContent = " --" + fighterNames[fIndex - 1]);
+		}
+		else{
+			fighterList.append(document.createElement("br"));
+			fighterList.append(document.createElement("p").textContent = " --" + fighterNames[fIndex - 1]);
+			clearFighters.style.display = 'inline';
+		};
+	};
+});
+
+clearFighters.onclick = () => {
+	fIndex = 0;
+	fighterNames = ["Default Billy", "Default Mandy"];
+	fighterList.innerHTML = '';
+	clearFighters.style.display = 'none';
+};
+
+let gameMode = duelButton;
+
+duelButton.onclick = () => {
+	changeGameMode(duelButton);
+};
+teamButton.onclick = () => {
+	changeGameMode(teamButton);
+};
+
+startButton.onclick = () => {
+	startButton.innerHTML = "Commence Battle 💥";
+	startButton.classList.add("is-danger","is-outlined");
+
+	clearLog.style.display = 'inline';
+	saveLog.style.display = 'inline';
+
+	commenceBattle(gameMode);
+};
+startButton.onmouseleave = () => {
+    if (startButton.innerHTML != "Commence Battle 💥"){
+        return;
+    }
+	const interval = setTimeout(async () => {
+		startButton.innerHTML = "Commence Battle 💣";
+		startButton.classList.remove("is-danger","is-outlined")
+	}, 500);
+};
+
+clearLog.onmouseenter = () => {
+	clearLog.classList.add("is-danger","is-outlined");
+};
+clearLog.onmouseleave = () => {
+	clearLog.classList.remove("is-danger","is-outlined");
+};
+saveLog.onmouseenter = () => {
+	saveLog.classList.add("is-success","is-outlined");
+};
+saveLog.onmouseleave = () => {
+	saveLog.classList.remove("is-success","is-outlined");
+};
+clearLog.onclick = () => {
+	let isConfirmed = confirm("Are you sure you want to clear the War Log? All history will be deleted.")
+	if (!isConfirmed){
+		return;
+	}
+
+	warLog.innerHTML = "⚠️ Wiped the battle history. ⚠️"
+
+	clearLog.style.display = 'none';
+	saveLog.style.display = 'none';
+}
+
+function changeGameMode(mode){
+	const modeButtons = [
+		duelButton,
+		teamButton
+	];
+	for (let i = 0; i < modeButtons.length; i++){
+		if(modeButtons[i].id == mode.id){
+			modeButtons.splice(i,1)
+			mode.classList.add("is-success","is-selected");
+		}
+	};
+	
+	for (let i = 0; i < modeButtons.length; i++){
+		modeButtons[i].classList.remove("is-success","is-selected");
+	}
+	gameMode = mode;
+};
+
 const BattleTypes = [
 	"Tavern Brawl",
 	"Battle to the Death",
@@ -8,305 +130,370 @@ const BattleTypes = [
 	"Fierce Battle",
 	"Onslaught",
 ];
-let fightersHP = 100;
-let fightersSP = 50;
+let fightersHP = 75;
+let fightersSP = 25;
 //hp for duels and team battles will be configurable with a slider
 
 console.log("initialized battle-sim");
 
+function commenceBattle(battleType){
+	console.log("Starting battle of type: " + battleType.id);
+
+	const message = document.createElement("p");
+	message.textContent = "The " + battleType.innerHTML + " begins! 🎺";
+	warLog.append(message);
+
+	if(battleType.id == "duel"){
+		duel(fighterNames);
+	};
+	if(battleType.id == "team"){
+		warLog.append(document.createElement("p").innerHTML = "Currently, only the FFA gamemode works 😬");
+	};
+	if(battleType.id == "ffa"){
+		warLog.append(document.createElement("p").innerHTML = "Currently, only the FFA gamemode works 😬");
+	};
+};
+
 //basic duel function
-function duel(){
-    const Fighters = [
-        {
-            name: "InputName1",
-            //maybe make their individual hp's and sp's configurable instead?
-            hp: fightersHP,
-            sp: fightersSP,
-        },
-        {
-            name: "InputName2",
-            hp: fightersHP,
-            sp: fightersSP,
-        },
-    ];
-    const setTitle = "It's a " +
+function duel(contestants){
+	let total = 0;
+    const Fighters = [];
+
+	for (let i = 0; i < contestants.length; i++){
+		Fighters.push(
+			{
+				name: contestants[i],
+				hp: fightersHP,
+				sp: fightersSP,
+			}
+		);
+	}
+
+	const setTitle = document.createElement("h5");
+
+    setTitle.textContent = "It's a " +
 					BattleTypes[Math.floor(Math.random() * BattleTypes.length)] +
 					"!";
-    let setDescription = `Fighters in conflict: ${Fighters[0].name}, ${Fighters[1].name}`;
+	
+	warLog.append(setTitle);
+	
+		let nameList = '';
+		for (let i = 0; i < Fighters.length; i++){
+			if (i < Fighters.length - 1){
+				nameList += Fighters[i].name + ", ";
+			}
+			else{
+				nameList += Fighters[i].name;
+			};
+		};
+
+    let setDescription = document.createElement("p");
+	setDescription.innerHTML = `<big> Fighters in conflict: ${nameList}. </big>`;
+
+	warLog.append(setDescription);
 
     let TurnNumber = 1;
     let Assailant = 0;
     let Reciever = 1;
     let FightLog = [""];
 
+	// let combatIndex = 0;
+	// let combatOrder;
+
     const interval = setInterval(async () => {
-        var attack = randomAttackUser(
-            Fighters[Assailant].name,
-            Fighters[Assailant].sp,
-            Fighters[Reciever].name,
-            Fighters[Reciever].hp,
+
+		const turnFighter = [
+			Fighters[Math.floor(Math.random() * Fighters.length)],
+			Fighters[Math.floor(Math.random() * Fighters.length)]
+		];
+
+		while (turnFighter[0].name == turnFighter[1].name){
+			turnFighter[1] = Fighters[Math.floor(Math.random() * Fighters.length)];
+		};
+
+        let attack = randomAttackUser(
+            turnFighter[Assailant].name,
+            turnFighter[Assailant].sp,
+            turnFighter[Reciever].name,
+            turnFighter[Reciever].hp,
         );
+
+		turnFighter[Reciever].hp = attack[1];
+		turnFighter[Assailant].sp = attack[2];
+
         FightLog.push(" " + attack[0] + "\n");
-        Fighters[Reciever].hp = attack[1];
-        Fighters[Assailant].sp = attack[2];
 
-        setDescription = (FightLog.toString())
+		if (turnFighter[0].hp < 1) {
+			let index = Fighters.indexOf(turnFighter[0]);
+			if (index !== -1) {
+				Fighters.splice(index, 1);
+			}
+			else{
+				console.log("Houston we have a problem:" + index);
+			}
+		}
+		if (turnFighter[1].hp < 1) {
+			let index = Fighters.indexOf(turnFighter[1]);
+			if (index !== -1) {
+				Fighters.splice(index, 1);
+			}
+			else{
+				console.log("Houston we have a problem:" + index);
+			}
+		}
 
-        //create two buttons or fields at the bottom of the war log to represent the two fighter's hp
+		let formattedM = document.createElement("p");
+		formattedM.innerHTML = "<b> Turn " + TurnNumber + ": </b>" + attack[0];
+		warLog.append(formattedM);
 
-        // const newEmbedState = new EmbedBuilder()
-        //     .setTitle("Turn " + TurnNumber + " :people_wrestling:")
-        //     .setDescription(FightLog.toString())
-        //     .addFields(
-        //         {
-        //             name: `${Fighters[0].name}'s health`,
-        //             value: `${Fighters[0].hp} HP`,
-        //             inline: true,
-        //         },
-        //         {
-        //             name: `${Fighters[1].name}'s health`,
-        //             value: `${Fighters[1].hp} HP`,
-        //             inline: true,
-        //         },
-        //     )
-        //     .setColor("#ff0000");
-        // Msg.edit({ embeds: [newEmbedState] });
         Assailant = 1 - Assailant;
         Reciever = 1 - Reciever;
         TurnNumber += 1;
-        if (Fighters[0].hp < 1 || Fighters[1].hp < 1) {
+
+        if (Fighters.length <= 1) {
+			let formattedM = document.createElement("p");
+			formattedM.innerHTML = `The last contestant standing is <strong> ${Fighters[0].name} </strong>🏆!`;
+			warLog.append(formattedM);
+
             clearInterval(interval);
         }
-    }, 1000);
+    }, 750);
 }
+
+// function formattedText(text, format){
+// 	let boldedText = document.createElement("p");
+// 	boldedText.textContent = text;
+// 	boldedText.style.fontWeight = format;
+// 	return boldedText;
+// }
 
 function randomAttackUser(Assailant, AssailantSP, Reciever, RecieverHP) {
 	const attacks = [
 		{
-			message: `**${Assailant}** punches **${Reciever}** with a mean right-hook!`,
+			message: `<strong> ${Assailant} </strong> punches <strong> ${Reciever} </strong> with a mean right-hook!`,
 			damage: 7,
 			energy: 3,
 		},
 		{
-			message: `**${Assailant}** slams a chair over **${Reciever}**'s head!`,
+			message: `<strong> ${Assailant} </strong> slams a chair over <strong> ${Reciever} </strong>'s head!`,
 			damage: 10,
 			energy: 5,
 		},
 		{
-			message: `**${Assailant}** stabs **${Reciever}** with a dagger!`,
+			message: `<strong> ${Assailant} </strong> stabs <strong> ${Reciever} </strong> with a dagger!`,
 			damage: 25,
 			energy: 10,
 		},
 		{
-			message: `**${Assailant}** kicks **${Reciever}**!`,
+			message: `<strong> ${Assailant} </strong> kicks <strong> ${Reciever} </strong>!`,
 			damage: 5,
 			energy: 2,
 		},
 		{
-			message: `**${Assailant}** uppercuts **${Reciever}**!`,
+			message: `<strong> ${Assailant} </strong> uppercuts <strong> ${Reciever} </strong>!`,
 			damage: 5,
 			energy: 2,
 		},
 		{
-			message: `**${Assailant}** karate-chops **${Reciever}**!`,
+			message: `<strong> ${Assailant} </strong> karate-chops <strong> ${Reciever} </strong>!`,
 			damage: 8,
 			energy: 4,
 		},
 		{
-			message: `**${Assailant}** butt-slams **${Reciever}**!`,
+			message: `<strong> ${Assailant} </strong> butt-slams <strong> ${Reciever} </strong>!`,
 			damage: 8,
 			energy: 4,
 		},
 		{
-			message: `**${Assailant}** verbally harasses **${Reciever}**!`,
+			message: `<strong> ${Assailant} </strong> verbally harasses <strong> ${Reciever} </strong>!`,
 			damage: 3,
 			energy: 1,
 		},
 		{
-			message: `**${Assailant}** rubs some dirt **${Reciever}**'s eye!`,
+			message: `<strong> ${Assailant} </strong> rubs some dirt <strong> ${Reciever} </strong>'s eye!`,
 			damage: 3,
 			energy: 1,
 		},
 		{
-			message: `**${Assailant}** knocks **${Reciever}** into a pile of rubble!`,
+			message: `<strong> ${Assailant} </strong> knocks <strong> ${Reciever} </strong> into a pile of rubble!`,
 			damage: 8,
 			energy: 4,
 		},
 		{
-			message: `**${Assailant}** pokes **${Reciever}** in the eye!`,
+			message: `<strong> ${Assailant} </strong> pokes <strong> ${Reciever} </strong> in the eye!`,
 			damage: 8,
 			energy: 2,
 		},
 		{
-			message: `**${Assailant}** pulls out a gun and shoots **${Reciever}**!`,
+			message: `<strong> ${Assailant} </strong> pulls out a gun and shoots <strong> ${Reciever} </strong>!`,
 			damage: 60,
 			energy: 10,
 		},
 		{
-			message: `**${Assailant}** force feeds **${Reciever}** rat poison!`,
+			message: `<strong> ${Assailant} </strong> force feeds <strong> ${Reciever} </strong> rat poison!`,
 			damage: 30,
 			energy: 10,
 		},
 		{
-			message: `**${Assailant}** stabs **${Reciever}** with a broken beer bottle!`,
+			message: `<strong> ${Assailant} </strong> stabs <strong> ${Reciever} </strong> with a broken beer bottle!`,
 			damage: 25,
 			energy: 10,
 		},
 		{
-			message: `**${Assailant}** hits **${Reciever}** with a frying pan!`,
+			message: `<strong> ${Assailant} </strong> hits <strong> ${Reciever} </strong> with a frying pan!`,
 			damage: 15,
 			energy: 7,
 		},
 		{
-			message: `**${Assailant}** snitches on **${Reciever}** to Tuxxego...`,
+			message: `<strong> ${Assailant} </strong> snitches on <strong> ${Reciever} </strong> to Tuxxego...`,
 			damage: 80,
 			energy: 50,
 		},
 		{
-			message: `**${Assailant}** throws a smoke bomb and disappears, leaving **${Reciever}** disoriented!`,
+			message: `<strong> ${Assailant} </strong> throws a smoke bomb and disappears, leaving <strong> ${Reciever} </strong> disoriented!`,
 			damage: 10,
 			energy: 5,
 		},
 		{
-			message: `**${Assailant}** casts a spell, engulfing **${Reciever}** in flames!`,
+			message: `<strong> ${Assailant} </strong> casts a spell, engulfing <strong> ${Reciever} </strong> in flames!`,
 			damage: 15,
 			energy: 7,
 		},
 		{
-			message: `**${Assailant}** teleports behind **${Reciever}** and delivers a surprise blow!`,
+			message: `<strong> ${Assailant} </strong> teleports behind <strong> ${Reciever} </strong> and delivers a surprise blow!`,
 			damage: 12,
 			energy: 6,
 		},
 		{
-			message: `**${Assailant}** hypnotizes **${Reciever}** with a mesmerizing dance, leaving them vulnerable!`,
+			message: `<strong> ${Assailant} </strong> hypnotizes <strong> ${Reciever} </strong> with a mesmerizing dance, leaving them vulnerable!`,
 			damage: 8,
 			energy: 4,
 		},
 		{
-			message: `**${Assailant}** summons a swarm of angry bees to attack **${Reciever}**!`,
+			message: `<strong> ${Assailant} </strong> summons a swarm of angry bees to attack <strong> ${Reciever} </strong>!`,
 			damage: 20,
 			energy: 10,
 		},
 		{
-			message: `**${Assailant}** uses mind control to force **${Reciever}** to attack themselves!`,
+			message: `<strong> ${Assailant} </strong> uses mind control to force <strong> ${Reciever} </strong> to attack themselves!`,
 			damage: 5,
 			energy: 2,
 		},
 		{
-			message: `**${Assailant}** reveals their true form—a monstrous creature—and terrifies **${Reciever}**!`,
+			message: `<strong> ${Assailant} </strong> reveals their true form—a monstrous creature—and terrifies <strong> ${Reciever} </strong>!`,
 			damage: 18,
 			energy: 9,
 		},
 		{
-			message: `**${Assailant}** throws a handful of marbles, causing **${Reciever}** to slip and fall!`,
+			message: `<strong> ${Assailant} </strong> throws a handful of marbles, causing <strong> ${Reciever} </strong> to slip and fall!`,
 			damage: 7,
 			energy: 2,
 		},
 		{
-			message: `**${Assailant}** recites a cursed incantation, draining **${Reciever}**'s life force!`,
+			message: `<strong> ${Assailant} </strong> recites a cursed incantation, draining <strong> ${Reciever} </strong>'s life force!`,
 			damage: 25,
 			energy: 10,
 		},
 		{
-			message: `**${Assailant}** whips out a laser sword and slashes at **${Reciever}**!`,
+			message: `<strong> ${Assailant} </strong> whips out a laser sword and slashes at <strong> ${Reciever} </strong>!`,
 			damage: 30,
 			energy: 15,
 		},
 		{
-			message: `**${Assailant}** used console commands to kill **${Reciever}** RIGGED THIS IS RIGGED!`,
+			message: `<strong> ${Assailant} </strong> used console commands to kill <strong> ${Reciever} </strong> RIGGED THIS IS RIGGED!`,
 			damage: 100,
 			energy: 50,
 		},
 		{
-			message: `**${Assailant}** whips **${Reciever}** with a heavy chain!`,
+			message: `<strong> ${Assailant} </strong> whips <strong> ${Reciever} </strong> with a heavy chain!`,
 			damage: 15,
 			energy: 7,
 		},
 		{
-			message: `**${Assailant}** hits **${Reciever}** with a stunning lightning bolt!`,
+			message: `<strong> ${Assailant} </strong> hits <strong> ${Reciever} </strong> with a stunning lightning bolt!`,
 			damage: 30,
 			energy: 10,
 		},
 		{
-			message: `**${Assailant}** launches a fireball at **${Reciever}**!`,
+			message: `<strong> ${Assailant} </strong> launches a fireball at <strong> ${Reciever} </strong>!`,
 			damage: 20,
 			energy: 10,
 		},
 		{
-			message: `**${Assailant}** freezes **${Reciever}** with a chilling frost spell!`,
+			message: `<strong> ${Assailant} </strong> freezes <strong> ${Reciever} </strong> with a chilling frost spell!`,
 			damage: 18,
 			energy: 9,
 		},
 		{
-			message: `**${Assailant}** ensnares **${Reciever}** in a net of thorns!`,
+			message: `<strong> ${Assailant} </strong> ensnares <strong> ${Reciever} </strong> in a net of thorns!`,
 			damage: 12,
 			energy: 6,
 		},
 		{
-			message: `**${Assailant}** lashes out with a flurry of shadow strikes at **${Reciever}**!`,
+			message: `<strong> ${Assailant} </strong> lashes out with a flurry of shadow strikes at <strong> ${Reciever} </strong>!`,
 			damage: 22,
 			energy: 11,
 		},
 		{
-			message: `**${Assailant}** conjures a vortex of wind to hurl **${Reciever}** into the air!`,
+			message: `<strong> ${Assailant} </strong> conjures a vortex of wind to hurl <strong> ${Reciever} </strong> into the air!`,
 			damage: 17,
 			energy: 8,
 		},
 		{
-			message: `**${Assailant}** blinds **${Reciever}** with a high-lumen flashlight!`,
+			message: `<strong> ${Assailant} </strong> blinds <strong> ${Reciever} </strong> with a high-lumen flashlight!`,
 			damage: 13,
 			energy: 4,
 		},
 		{
-			message: `**${Assailant}** traps **${Reciever}** in an explosive rune trap!`,
+			message: `<strong> ${Assailant} </strong> traps <strong> ${Reciever} </strong> in an explosive rune trap!`,
 			damage: 26,
 			energy: 13,
 		},
 		{
-			message: `**${Assailant}** throws a javelin at **${Reciever}**!`,
+			message: `<strong> ${Assailant} </strong> throws a javelin at <strong> ${Reciever} </strong>!`,
 			damage: 19,
 			energy: 9,
 		},
 	];
 	const recoveryActions = [
 		{
-			trigger: `**${Assailant}** takes a deep breath, focusing their energy...`,
+			trigger: `<strong> ${Assailant} </strong> takes a deep breath, focusing their energy...`,
 			recovery: 40,
 		},
 		{
-			trigger: `**${Assailant}** finds their inner calm amidst the chaos...`,
+			trigger: `<strong> ${Assailant} </strong> finds their inner calm amidst the chaos...`,
 			recovery: 45,
 		},
 		{
-			trigger: `**${Assailant}** rallies with a fierce battle cry...`,
+			trigger: `<strong> ${Assailant} </strong> rallies with a fierce battle cry...`,
 			recovery: 60,
 		},
 		{
-			trigger: `**${Assailant}** drinks a mysterious revitalizing potion...`,
+			trigger: `<strong> ${Assailant} </strong> drinks a mysterious revitalizing potion...`,
 			recovery: 80,
 		},
 		{
-			trigger: `**${Assailant}** taps into a hidden reserve of strength...`,
+			trigger: `<strong> ${Assailant} </strong> taps into a hidden reserve of strength...`,
 			recovery: 80,
 		},
 		{
-			trigger: `**${Assailant}** feels the exhaustion leave their body as they recite a restorative spell.`,
+			trigger: `<strong> ${Assailant} </strong> feels the exhaustion leave their body as they recite a restorative spell.`,
 			recovery: 60,
 		},
 		{
-			trigger: `**${Assailant}** absorbs the energy from the surrounding environment...`,
+			trigger: `<strong> ${Assailant} </strong> absorbs the energy from the surrounding environment...`,
 			recovery: 50,
 		},
 		{
-			trigger: `**${Assailant}** uses a moment of peace to meditate and restore vitality...`,
+			trigger: `<strong> ${Assailant} </strong> uses a moment of peace to meditate and restore vitality...`,
 			recovery: 20,
 		},
 		{
-			trigger: `**${Assailant}** calls upon the spirits of previous battles to invigorate him...`,
+			trigger: `<strong> ${Assailant} </strong> calls upon the spirits of previous battles to invigorate him...`,
 			recovery: 50,
 		},
 		{
-			trigger: `**${Assailant}** invokes an ancestral spirit for protection and healing...`,
+			trigger: `<strong> ${Assailant} </strong> invokes an ancestral spirit for protection and healing...`,
 			recovery: 80,
 		},
 	];
@@ -317,13 +504,13 @@ function randomAttackUser(Assailant, AssailantSP, Reciever, RecieverHP) {
 				recoveryActions[Math.floor(Math.random() * recoveryActions.length)];
 			AssailantSP += action.recovery;
 			return [
-				`**${Assailant}** is too exhausted to attack. *However... ${action.trigger}*`,
+				`<strong> ${Assailant} </strong> is too exhausted to attack. <em> However... ${action.trigger} </em>`,
 				RecieverHP,
 				AssailantSP,
 			];
 		}
 		return [
-			`***${Assailant}** is too exhausted to attack.*`,
+			`<em> <strong> ${Assailant} </strong> is too exhausted to attack. </em>`,
 			RecieverHP,
 			AssailantSP,
 		];
@@ -340,7 +527,7 @@ function randomAttackUser(Assailant, AssailantSP, Reciever, RecieverHP) {
 	AssailantSP -= chosenAttack.energy;
 	if (RecieverHP < 1) {
 		return [
-			`${chosenAttack.message} ***${Reciever}** finally succumbs to their injuries...* **${Assailant}** is the winner of this battle! 💪`,
+			`${chosenAttack.message} <em> <strong> ${Reciever} </strong> finally succumbs to their injuries... </em> <strong> ${Assailant} </strong> is the winner of this battle! 💪`,
 			RecieverHP,
 			AssailantSP,
 		];

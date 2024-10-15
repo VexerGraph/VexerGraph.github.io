@@ -6,12 +6,12 @@ let nameBar = document.getElementById("name");
 
 honorButton.onclick = function() {
     if (addTitle){
-        honorButton.innerHTML = "No"
-        honorButton.classList.replace("is-success","is-danger")
+        honorButton.innerHTML = "No";
+        honorButton.classList.replace("is-success","is-danger");
     }
     else{
-        honorButton.innerHTML = "Yes"
-        honorButton.classList.replace("is-danger","is-success")
+        honorButton.innerHTML = "Yes";
+        honorButton.classList.replace("is-danger","is-success");
     }
     addTitle = 1 - addTitle;
 };
@@ -50,7 +50,7 @@ function fillName(){
       const vowels = ["a","e","i","o","u","y"];
       const consonants = ["b","c","d","f","g","h","j","k","l","m","n","p","q","r","s","t","v","w","x","z","qu","ch","bl","cl","fl","gl","pl","sl","br","cr","dr","fr","gr","pr","tr","sc","sk","sm","sn","sp","st"];
     var name = "";
-    for(let i = 0; i < Math.floor(Math.random() * nameLength - 1) + 2; i++){
+    for(let i = 0; i < Math.floor(Math.random() * nameLength || 4 - 1) + 2; i++){
       name += consonants[Math.floor(Math.random() * consonants.length)];
       name += vowels[Math.floor(Math.random() * vowels.length)];
     }
@@ -78,5 +78,4 @@ function fillName(){
   
   function capitalize(word){
     return word.charAt(0).toUpperCase() + word.slice(1);
-  }
-  
+  };
