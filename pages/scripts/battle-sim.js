@@ -8,7 +8,8 @@ clearLog = document.getElementById("clear-log"),
 saveLog = document.getElementById("copy-log"),
 fighterField = document.getElementById("fighter"),
 fighterList = document.getElementById("fighter-list"),
-clearFighters = document.getElementById("clear-fighters");
+clearFighters = document.getElementById("clear-fighters"),
+statuses = document.getElementById("statuses");
 
 //ok so I might remove duel gamemode all togehter and make ffa the default.
 
@@ -98,6 +99,10 @@ clearLog.onclick = () => {
 
 	warLog.innerHTML = "⚠️ Wiped the battle history. ⚠️"
 
+	setTimeout(async () => {
+		warLog.innerHTML = "";
+	},300);
+
 	clearLog.style.display = 'none';
 	saveLog.style.display = 'none';
 }
@@ -156,7 +161,6 @@ function commenceBattle(battleType){
 
 //basic duel function
 function duel(contestants){
-	let total = 0;
     const Fighters = [];
 
 	for (let i = 0; i < contestants.length; i++){
