@@ -361,10 +361,11 @@ function duel(contestants){
             clearInterval(interval);
         }
 
-		window.scrollTo({
-			top: document.body.scrollHeight,
-			behavior: 'smooth' // Optional: makes the scroll smooth
+		document.getElementById("scroll-target").scrollIntoView({
+			behavior: 'smooth', // Optional: makes the scroll smooth
+			block: 'center' // Aligns the element to the bottom of the view
 		  });
+		  
 		if(stopCombat){
 			clearInterval(interval);
 			stopCombat=false;
