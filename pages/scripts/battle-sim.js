@@ -9,14 +9,62 @@ saveLog = document.getElementById("copy-log"),
 fighterField = document.getElementById("fighter"),
 fighterList = document.getElementById("fighter-list"),
 clearFighters = document.getElementById("clear-fighters"),
-statuses = document.getElementById("statuses");
+statuses = document.getElementById("statuses"),
+healthSlider = document.getElementById("hp-global"),
+healthDisplay = document.getElementById("display-hp-global"),
+staminaSlider = document.getElementById("sp-global"),
+staminaDisplay = document.getElementById("display-sp-global"),
+randomizeButton = document.getElementById("randomize-stats"),
+variabilitySlider = document.getElementById("variability"),
+displayVariable = document.getElementById("display-variability"),
+randomSection = document.getElementById("randomness");
 
-//ok so I might remove duel gamemode all togehter and make ffa the default.
+let randomizeStats = false;
+let statVariability = variabilitySlider.value;
+
+displayVariable.innerHTML = "<strong> " + variabilitySlider.value + " </strong>";
+
+healthDisplay.innerHTML = "<strong> " + healthSlider.value + " </strong>";
+staminaDisplay.innerHTML = "<strong> " + staminaSlider.value + " </strong>";
+
+randomizeButton.onclick = () =>{
+	if (randomizeStats){
+		randomizeButton.classList.remove("is-info","is-outlined");
+		randomSection.style.display = "none";
+	}
+	else{
+		randomizeButton.classList.add("is-info","is-outlined");
+		randomSection.style.display = "inline";
+	};
+	randomizeStats = 1 - randomizeStats;
+};
+
+variabilitySlider.oninput = () => {
+	displayVariable.innerHTML = "<strong> " + variabilitySlider.value + " </strong>";
+	statVariability = variabilitySlider.value;
+};
+
+
+let fightersHP = 75;
+let fightersSP = 25;
+
+healthSlider.oninput = () => {
+	healthDisplay.innerHTML = "<strong> " + healthSlider.value + " </strong>";
+	fightersHP = healthSlider.value;
+};
+
+staminaSlider.oninput = () => {
+	staminaDisplay.innerHTML = "<strong> " + staminaSlider.value + " </strong>";
+	fightersSP = staminaSlider.value;
+};
+
+
 
 let fighterNames = ["Default Billy", "Default Mandy"];
 let fIndex = 0;
+let stopCombat = false;
 
-
+let orderedList;
 
 fighterField.addEventListener('keypress', (e) => {
 	if (e.key === 'Enter'){
@@ -33,12 +81,16 @@ fighterField.addEventListener('keypress', (e) => {
 
 		if (fIndex == 1){
 			fighterList.append(document.createElement("h6").textContent = "Current Fighters:");
-			fighterList.append(document.createElement("br"));
-			fighterList.append(document.createElement("p").textContent = " --" + fighterNames[fIndex - 1]);
+			orderedList = document.createElement("ol");
+			let fName = document.createElement("li")
+			fName.innerHTML = fighterNames[fIndex - 1];
+			orderedList.append(fName);
+			fighterList.append(orderedList);
 		}
 		else{
-			fighterList.append(document.createElement("br"));
-			fighterList.append(document.createElement("p").textContent = " --" + fighterNames[fIndex - 1]);
+			let fName = document.createElement("li")
+			fName.innerHTML = fighterNames[fIndex - 1];
+			orderedList.append(fName);
 			clearFighters.style.display = 'inline';
 		};
 	};
@@ -48,6 +100,7 @@ clearFighters.onclick = () => {
 	fIndex = 0;
 	fighterNames = ["Default Billy", "Default Mandy"];
 	fighterList.innerHTML = '';
+	fighterField.placeholder = `Fighter ${fIndex + 1}`;
 	clearFighters.style.display = 'none';
 };
 
@@ -97,7 +150,8 @@ clearLog.onclick = () => {
 		return;
 	}
 
-	warLog.innerHTML = "⚠️ Wiped the battle history. ⚠️"
+	warLog.innerHTML = "⚠️ Wiped the battle history. ⚠️";
+	statuses.innerHTML = "";
 
 	setTimeout(async () => {
 		warLog.innerHTML = "";
@@ -105,6 +159,8 @@ clearLog.onclick = () => {
 
 	clearLog.style.display = 'none';
 	saveLog.style.display = 'none';
+
+	stopCombat = true;
 }
 
 function changeGameMode(mode){
@@ -135,8 +191,6 @@ const BattleTypes = [
 	"Fierce Battle",
 	"Onslaught",
 ];
-let fightersHP = 75;
-let fightersSP = 25;
 //hp for duels and team battles will be configurable with a slider
 
 console.log("initialized battle-sim");
@@ -163,15 +217,34 @@ function commenceBattle(battleType){
 function duel(contestants){
     const Fighters = [];
 
-	for (let i = 0; i < contestants.length; i++){
-		Fighters.push(
-			{
-				name: contestants[i],
-				hp: fightersHP,
-				sp: fightersSP,
-			}
-		);
+	if (randomizeStats){
+		for (let i = 0; i < contestants.length; i++){
+			let randomHP = Math.round(Math.random() * statVariability) + fightersHP;
+			let randomSP = Math.round(Math.random() * statVariability) + fightersSP;
+
+			// console.log(statVariability);
+			// console.log("HP SP:" + randomHP + " " + randomSP);
+
+			Fighters.push(
+				{
+					name: contestants[i],
+					hp: randomHP,
+					sp: randomSP
+				}
+			);
+		};
 	}
+	else{
+		for (let i = 0; i < contestants.length; i++){
+			Fighters.push(
+				{
+					name: contestants[i],
+					hp: fightersHP,
+					sp: fightersSP
+				}
+			);
+		};
+	};
 
 	const setTitle = document.createElement("h5");
 
@@ -197,17 +270,20 @@ function duel(contestants){
 	warLog.append(setDescription);
 
     let TurnNumber = 1;
-    let Assailant = 0;
-    let Reciever = 1;
+	let roundNumber = 1;
     let FightLog = [""];
+	let roundList = document.createElement("ul");
+	let roundText = document.createElement("p");
+	roundText.innerHTML = "<big> <em> Round " + roundNumber + " </em> </big>";
 
-	// let combatIndex = 0;
-	// let combatOrder;
+	warLog.append(roundText,
+		roundList);
+
+	let combatIndex = 0;
 
     const interval = setInterval(async () => {
-
 		const turnFighter = [
-			Fighters[Math.floor(Math.random() * Fighters.length)],
+			Fighters[combatIndex],
 			Fighters[Math.floor(Math.random() * Fighters.length)]
 		];
 
@@ -216,42 +292,65 @@ function duel(contestants){
 		};
 
         let attack = randomAttackUser(
-            turnFighter[Assailant].name,
-            turnFighter[Assailant].sp,
-            turnFighter[Reciever].name,
-            turnFighter[Reciever].hp,
+            turnFighter[0].name,
+            turnFighter[0].sp,
+            turnFighter[1].name,
+            turnFighter[1].hp,
         );
 
-		turnFighter[Reciever].hp = attack[1];
-		turnFighter[Assailant].sp = attack[2];
+		turnFighter[1].hp = attack[1];
+		turnFighter[0].sp = attack[2];
 
         FightLog.push(" " + attack[0] + "\n");
 
-		if (turnFighter[0].hp < 1) {
-			let index = Fighters.indexOf(turnFighter[0]);
-			if (index !== -1) {
-				Fighters.splice(index, 1);
-			}
-			else{
-				console.log("Houston we have a problem:" + index);
-			}
-		}
+		statuses.innerHTML = "";
+
+		for(let i = 0; i < Fighters.length; i++){
+			let playerStatuses = document.createElement("span");
+			playerStatuses.innerHTML = Fighters[i].name + ": " + Fighters[i].hp + "HP" + " " + Fighters[i].sp + "SP";
+			playerStatuses.classList.add("button", "is-small");
+			if(Fighters[i] == turnFighter[0]){
+				playerStatuses.classList.add("is-info", "is-selected", "is-outlined");
+			};
+			if(Fighters[i] == turnFighter[1]){
+				playerStatuses.classList.add("is-danger", "is-selected", "is-outlined");
+			};
+
+			statuses.append(playerStatuses);
+		};
+
+		combatIndex++;
+
 		if (turnFighter[1].hp < 1) {
 			let index = Fighters.indexOf(turnFighter[1]);
 			if (index !== -1) {
 				Fighters.splice(index, 1);
+				//combatIndex--;
 			}
 			else{
 				console.log("Houston we have a problem:" + index);
 			}
 		}
 
-		let formattedM = document.createElement("p");
-		formattedM.innerHTML = "<b> Turn " + TurnNumber + ": </b>" + attack[0];
-		warLog.append(formattedM);
+		let formattedM = document.createElement("li");
+		formattedM.innerHTML = attack[0];
+		roundList.append(formattedM);
 
-        Assailant = 1 - Assailant;
-        Reciever = 1 - Reciever;
+		if (TurnNumber >= Fighters.length && Fighters.length > 1){
+			shuffle(Fighters);
+			roundNumber++;
+			TurnNumber = 0;
+			combatIndex = 0;
+		
+			roundList = document.createElement("ul");
+			roundText = document.createElement("p");
+			roundText.innerHTML = "<big> <em> Round " + roundNumber + " </em> </big>";
+			warLog.append(
+				roundText,
+				roundList
+			);
+		};
+
         TurnNumber += 1;
 
         if (Fighters.length <= 1) {
@@ -261,7 +360,16 @@ function duel(contestants){
 
             clearInterval(interval);
         }
-    }, 750);
+
+		window.scrollTo({
+			top: document.body.scrollHeight,
+			behavior: 'smooth' // Optional: makes the scroll smooth
+		  });
+		if(stopCombat){
+			clearInterval(interval);
+			stopCombat=false;
+		}
+    }, 800);
 }
 
 // function formattedText(text, format){
@@ -458,6 +566,21 @@ function randomAttackUser(Assailant, AssailantSP, Reciever, RecieverHP) {
 			damage: 19,
 			energy: 9,
 		},
+		{
+			message: `<strong> ${Assailant} </strong> throws a barrage of ninja stars at <strong> ${Reciever} </strong>!`,
+			damage: 21,
+			energy: 10,
+		},
+		{
+			message: `<strong> ${Assailant} </strong> cries for Aries, the god of war, to destroy <strong> ${Reciever} </strong>!`,
+			damage: 500,
+			energy: 240,
+		},
+		{
+			message: `<strong> ${Assailant} </strong> cries for Aries, the god of war, to destroy <strong> ${Reciever} </strong>!`,
+			damage: 500,
+			energy: 240
+		}
 	];
 	const recoveryActions = [
 		{
@@ -500,6 +623,34 @@ function randomAttackUser(Assailant, AssailantSP, Reciever, RecieverHP) {
 			trigger: `<strong> ${Assailant} </strong> invokes an ancestral spirit for protection and healing...`,
 			recovery: 80,
 		},
+		{
+			trigger: `<strong> ${Assailant} </strong> becomes attuned to the cosmos, and channels the divinity of the stars to attain a fraction of their power...`,
+			recovery: 1000
+		},
+		{
+			trigger: `<strong> ${Assailant} </strong> thinks about their family, invigorating them to keep fighting...`,
+			recovery: 45
+		},
+		{
+			trigger: `<strong> ${Assailant} </strong> remembered what they were fighting for...`,
+			recovery: 45
+		},
+		{
+			trigger: `<strong> ${Assailant} </strong> remembered a really funny joke their friend told them, invigorating them with the will to survive...`,
+			recovery: 30
+		},
+		{
+			trigger: `An animalistic need to survive grew inside of <strong> ${Assailant}'s </strong> soul, motivating them to keep going...`,
+			recovery: 70
+		},
+		{
+			trigger: `<strong> ${Assailant} </strong> stares into the eyes of <strong> ${Reciever} </strong>, and a new found bloodlust boils within their heart...`,
+			recovery: 45
+		},
+		{
+			trigger: `<strong> ${Reciever} </strong> mocks <strong> ${Assailant} </strong> as they struggle to stand, reigniting <strong> ${Assailant}'s </strong> rage...`,
+			recovery: 45
+		}
 	];
 	if (AssailantSP <= 0) {
 		var secondWind = Math.random() < 0.25;

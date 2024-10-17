@@ -9,6 +9,10 @@
         rel="stylesheet"
         href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css"
     >
+    <link
+      rel="stylesheet"
+      href="../index.css"
+    >
     <link rel="icon" href=
     "https://static.wikia.nocookie.net/parody/images/3/3b/Kinger.jpg" 
               type="image/x-icon">
@@ -34,12 +38,29 @@
           </div>
           <div id="battle-configuration" class="container">
             <h3>Configuration</h3>
-              <label for="name" id="name-label">Enter Contestants:</label>
+              <label for="fighter" id="name-label">Enter Contestants:</label>
               <input class="input" id ="fighter" name="fighter" placeholder="Fighter 1"> 
-              <div id="fighter-list">
-
+              <div id="fighter-list" class = "content">
               </div>
-              <button class="button is-small" id="clear-fighters" style="display: none;">Clear Fighters</button>
+              <button class="button is-small mb-5" id="clear-fighters" style="display: none;">Clear Fighters</button>
+              <h4>Stats:</h4>
+              <div class="slidecontainer">
+                <label for="Health">HP Pool:</label>
+                <input type="range" min="1" max="1000" value="75" class="slider" name="Health" id="hp-global">
+                <p id="display-hp-global">help</p>
+              </div>  
+              <div class="slidecontainer">
+                <label for="Stamina">Stamina Pool:</label>
+                <input type="range" min="1" max="1000" value="25" class="slider" name="Stamina" id="sp-global">
+                <p id="display-sp-global">help</p>
+              </div> 
+              <button class="button my-3" id="randomize-stats">Randomize Stats</button>
+              <br>
+              <div id = "randomness" style="display: none;">
+                <label for="random">Variability:</label>
+                <input type="range" min="10" max="150" value="20" class="slider" name="random" id="variability">
+                <p id="display-variability">help</p>  
+              </div>
           </div>
           <button class="button mt-5" id="start-battle">Commence Battle 💣</button>
         </div>
@@ -49,7 +70,7 @@
           <h2>War Log ⚔️</h2>
           <div id="war-log" class="mb-3"></div>
 
-          <div id="statuses"></div>
+          <div id="statuses" class="buttons has-addons"></div>
           
           <button class="button is-small" id="copy-log" style="display: none;">💾 Save Log to MD file</button>
           <button class="button is-small" id="clear-log" style="display: none;">❌ Clear Log</button>
